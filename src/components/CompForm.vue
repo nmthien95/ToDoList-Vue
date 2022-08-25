@@ -37,11 +37,20 @@
         </div>
         <div class="col-6 px-3">
           <button
+            v-if="taskSelected === null"
             v-on:click="handleAddNewTask"
             type="button"
             class="btn btn-primary w-100"
           >
             Submit
+          </button>
+          <button
+            v-else
+            v-on:click="handleEditTask"
+            type="button"
+            class="btn btn-primary w-100"
+          >
+            Update
           </button>
         </div>
         <div class="col-6 px-3">
@@ -64,15 +73,41 @@ import { v4 as uuidv4 } from "uuid";
 export default {
   components: { FormAdd },
   name: "comp-form",
-  props: { isShowForm: Boolean },
+  props: { isShowForm: Boolean, taskSelected: Object },
 
   data() {
     return { taskName: "", level: 0 };
   },
 
   mounted() {},
+  watch: {
+    // watcher taskSelected
+    taskSelected: function (newData) {
+      if (this.taskSelected !== null) {
+        // NGười dùng có click vào button edit
+        this.taskName = newData.name;
+        this.level = newData.level;
+      }
+    },
+  },
+  // beforeUpdate() {
+  //   // if (this.taskSelected !== null) {
+  //   //   // NGười dùng có click vào button edit
+  //   //   this.taskName = this.taskSelected.name;
+  //   //   this.level = this.taskSelected.level;
+  //   // }
+  // },
 
   methods: {
+    handleEditTask() {
+      let objTaskEdit = {
+        id: this.taskSelected.id,
+        name: this.taskName,
+        level: parseInt(this.level),
+      };
+      this.$emit("handleEditTaskByID", objTaskEdit);
+      this.handleResetValue();
+    },
     handleAddNewTask() {
       let objTask = {
         id: uuidv4(),

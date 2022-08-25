@@ -18,6 +18,8 @@
 
         <!-- FORM : START -->
         <comp-form
+          v-on:handleEditTaskByID="handleEditTaskByID"
+          v-bind:taskSelected="taskSelected"
           v-on:handleAddNewTask="handleAddNewTask"
           v-on:handleToggleForm="handleToggleForm"
           v-bind:isShowForm="isShowForm"
@@ -27,6 +29,7 @@
 
       <!-- LIST : START -->
       <todo-list-table
+        v-on:handleEdit="handleEdit"
         v-on:handleDelete="handleDelete"
         v-bind:listTask="listTaskSort"
       />
@@ -39,19 +42,35 @@ import CompControl from "./components/CompControl.vue";
 import CompForm from "./components/CompForm.vue";
 import ComponentTitle from "./components/ComponentTitle.vue";
 import TodoListTable from "./components/TodoListTable";
-import listTask from "./moks/task";
+// import listTask from "./moks/task";
 
 export default {
   components: { TodoListTable, ComponentTitle, CompControl, CompForm },
   name: "App",
   data() {
     return {
-      listTask: listTask,
+      listTask: null,
       isShowForm: false,
       strSearch: "",
       orderBy: "name",
       orderDir: "asc",
+      taskSelected: null,
     };
+  },
+  watch: {
+    listTask: function (newData) {
+      let taskString = JSON.stringify(newData);
+      localStorage.setItem("listTask", taskString);
+    },
+  },
+  created() {
+    // lấy listTask từ trong localStorage
+    let tasks = localStorage.getItem("tasks");
+    if (tasks !== null) {
+      this.listTask = JSON.parse(tasks);
+    } else {
+      this.listTask = [];
+    }
   },
   computed: {
     listTaskSearch() {
@@ -72,7 +91,26 @@ export default {
       return listTask;
     },
   },
+
   methods: {
+    handleEditTaskByID(objTaskEdit) {
+      console.log("objTaskEdit: ", objTaskEdit);
+      // tìm index  tương ứng  với taskEdit.id nằm trtong listTask gốc
+      const index = this.listTask.findIndex(
+        (item) => item.id === objTaskEdit.id
+      );
+      // áp dujg splice để xóa và thêm mới gias trị vao listTask
+      if (index !== -1) {
+        this.listTask.splice(index, 1, objTaskEdit);
+        this.handleToggleForm();
+      }
+    },
+
+    handleEdit(taskEdit) {
+      this.isShowForm = true;
+      console.log("taskEdit: ", taskEdit);
+      this.taskSelected = taskEdit;
+    },
     handleAddNewTask(objTask) {
       console.log("objTask: ", objTask);
       this.listTask.push(objTask);
@@ -88,6 +126,7 @@ export default {
     },
 
     handleToggleForm() {
+      if (this.isShowForm) this.taskSelected = null;
       this.isShowForm = !this.isShowForm;
     },
     compareSort(a, b) {

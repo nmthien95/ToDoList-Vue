@@ -15,6 +15,7 @@
         <tbody v-if="listTask.length !== 0">
           <todo-list-item
             v-on:handleDelete="handleDelete"
+            v-on:handleEdit="handleEdit"
             v-bind:index="index"
             v-bind:task="task"
             v-for="(task, index) in listTask"
@@ -47,6 +48,9 @@ export default {
   mounted() {},
 
   methods: {
+    handleEdit(task) {
+      this.$emit("handleEdit", task);
+    },
     handleDelete(data) {
       this.$emit("handleDelete", data);
     },

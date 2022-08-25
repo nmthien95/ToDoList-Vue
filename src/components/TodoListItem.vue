@@ -43,6 +43,9 @@ export default {
   // },
 
   methods: {
+    handleEdit() {
+      this.$emit("handleEdit", this.task);
+    },
     handleDelete() {
       if (confirm("Bạn có muốn xóa task có tên là " + this.taskName)) {
         this.$emit("handleDelete", this.task);
